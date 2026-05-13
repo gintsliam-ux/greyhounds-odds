@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Race } from '../types'
+import type { Sport } from '../lib/sport'
 
 function minsFromNow(iso: string): number {
   return Math.round((new Date(iso).getTime() - Date.now()) / 60000)
@@ -20,7 +21,7 @@ function formatResults(results: number[][] | null): string | null {
   return top.join('-')
 }
 
-export default function RaceBadge({ race, className = '' }: { race: Race; className?: string }) {
+export default function RaceBadge({ race, sport, className = '' }: { race: Race; sport: Sport; className?: string }) {
   const resulted = formatResults(race.results)
   const mins = minsFromNow(race.start_time)
 
@@ -49,9 +50,9 @@ export default function RaceBadge({ race, className = '' }: { race: Race; classN
 
   return (
     <Link
-      to={`/races/${race.id}`}
+      to={`/${sport}/races/${race.id}`}
       title={`Race ${race.race_number} · ${formatTime(race.start_time)}`}
-      className={`inline-flex items-center justify-center min-w-[3.5rem] px-2.5 py-1 rounded text-xs font-mono font-medium transition-opacity hover:opacity-80 ${style} ${className}`}
+      className={`inline-flex items-center justify-center min-w-[2.5rem] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium transition-opacity hover:opacity-80 ${style} ${className}`}
     >
       {label}
     </Link>

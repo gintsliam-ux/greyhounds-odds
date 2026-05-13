@@ -1,13 +1,16 @@
 import { CalendarDays } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { yesterdayIso, todayIso, tomorrowIso, labelForDate } from '../lib/dates'
+import { sportFromPath } from '../lib/sport'
 
 export default function DateTabs({ selected }: { selected: string }) {
   const navigate = useNavigate()
+  const { sport: sportParam } = useParams<{ sport: string }>()
+  const sport = sportFromPath(sportParam)
   const tabs: { label: string; to: string; iso: string }[] = [
-    { label: 'Yesterday', to: '/yesterday', iso: yesterdayIso() },
-    { label: 'Today', to: '/today', iso: todayIso() },
-    { label: 'Tomorrow', to: '/tomorrow', iso: tomorrowIso() },
+    { label: 'Yesterday', to: `/${sport}/yesterday`, iso: yesterdayIso() },
+    { label: 'Today', to: `/${sport}/today`, iso: todayIso() },
+    { label: 'Tomorrow', to: `/${sport}/tomorrow`, iso: tomorrowIso() },
   ]
 
   const builtIn = labelForDate(selected)
@@ -36,7 +39,7 @@ export default function DateTabs({ selected }: { selected: string }) {
           type="date"
           value={selected}
           onChange={(e) => {
-            if (e.target.value) navigate(`/date/${e.target.value}`)
+            if (e.target.value) navigate(`/${sport}/date/${e.target.value}`)
           }}
           className="bg-transparent text-sm outline-none [color-scheme:dark]"
         />

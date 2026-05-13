@@ -23,10 +23,26 @@ export interface Runner {
   id: string
   race_id: string
   betwatch_runner_id: string | null
-  box_number: number
+  runner_number: number | null
+  box_number: number | null
+  barrier_number: number | null
+  jockey: string | null
+  driver: string | null
   name: string
   scratched_at: string | null
   created_at: string
+}
+
+export function runnerNumber(r: Runner): number | null {
+  return r.runner_number ?? r.box_number ?? r.barrier_number ?? null
+}
+
+export function runnerBarrier(r: Runner): number | null {
+  return r.barrier_number ?? null
+}
+
+export function runnerPilot(r: Runner): string | null {
+  return r.jockey ?? r.driver ?? null
 }
 
 export type OddsCheckpoint = 'open' | '30m' | '15m' | '10m' | '5m' | '3m' | '1m' | '30s' | 'current'
@@ -53,6 +69,8 @@ export interface Odds {
   place_1m: number | null
   place_30s: number | null
   place_current: number | null
+  blend_fair: number | null
+  blend_fair_place: number | null
   last_updated: string
   created_at: string
 }

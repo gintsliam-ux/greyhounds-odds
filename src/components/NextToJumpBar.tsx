@@ -3,6 +3,7 @@ import { Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { fetchNextToJump, type NextRace } from '../lib/queries'
 import RaceBadge from './RaceBadge'
+import SportIcon from './SportIcon'
 
 export default function NextToJumpBar() {
   const [races, setRaces] = useState<NextRace[]>([])
@@ -37,14 +38,15 @@ export default function NextToJumpBar() {
               <span className="text-xs text-gray-500">No upcoming races</span>
             ) : (
               races.map((r) => (
-                <div key={r.id} className="shrink-0 inline-flex items-center gap-2">
+                <div key={`${r.sport}-${r.id}`} className="shrink-0 inline-flex items-center gap-2">
                   <Link
-                    to={`/races/${r.id}`}
-                    className="text-xs font-medium text-gray-300 hover:text-white transition-colors whitespace-nowrap"
+                    to={`/${r.sport}/races/${r.id}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-300 hover:text-white transition-colors whitespace-nowrap"
                   >
+                    <SportIcon sport={r.sport} className="w-3.5 h-3.5" />
                     {r.meeting?.track} · R{r.race_number}
                   </Link>
-                  <RaceBadge race={r} />
+                  <RaceBadge race={r} sport={r.sport} />
                 </div>
               ))
             )}

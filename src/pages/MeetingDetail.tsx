@@ -1,29 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { fetchMeeting, fetchRacesForMeeting } from '../lib/queries'
 import type { Meeting, Race } from '../types'
 import RaceBadge from '../components/RaceBadge'
 import { Skeleton } from '../components/Skeleton'
+import { sportFromPath } from '../lib/sport'
 
 export default function MeetingDetail() {
-  const { meetingId } = useParams<{ meetingId: string }>()
+  const { meetingId, sport: sportParam } = useParams<{ meetingId: string; sport: string }>()
+  const sport = sportFromPath(sportParam)
   const [meeting, setMeeting] = useState<Meeting | null>(null)
   const [races, setRaces] = useState<Race[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!meetingId) return
-    setLoading(true)
-    Promise.all([fetchMeeting(meetingId), fetchRacesForMeeting(meetingId)])
-      .then(([m, r]) => {
+  const load = useCallback(
+    async (silent: boolean) => {
+      if (!meetingId) return
+      if (silent) setRefreshing(true)
+      else setLoading(true)
+      try {
+        const [m, r] = await Promise.all([
+          fetchMeeting(sport, meetingId),
+          fetchRacesForMeeting(sport, meetingId),
+        ])
         setMeeting(m)
         setRaces(r)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
-  }, [meetingId])
+        setError(null)
+      } catch (e) {
+        setError((e as Error).message)
+      } finally {
+        setLoading(false)
+        setRefreshing(false)
+      }
+    },
+    [sport, meetingId]
+  )
+
+  useEffect(() => {
+    load(false)
+  }, [load])
 
   if (error) return <p className="text-sm text-red-400">{error}</p>
 
@@ -35,9 +53,9 @@ export default function MeetingDetail() {
           <Skeleton className="h-7 w-48 mb-2" />
           <Skeleton className="h-4 w-40" />
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex flex-wrap items-center gap-2">
           {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="h-20" />
+            <Skeleton key={i} className="h-9 w-24" />
           ))}
         </div>
       </div>
@@ -49,27 +67,36 @@ export default function MeetingDetail() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/today" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-2">
+        <Link to={`/${sport}/today`} className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-2">
           <ArrowLeft className="w-4 h-4" /> All meetings
         </Link>
-        <h1 className="text-2xl font-semibold text-white">{meeting.track}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-white">{meeting.track}</h1>
+          <button
+            onClick={() => load(true)}
+            disabled={refreshing}
+            className="p-1.5 rounded border border-gray-800 text-gray-400 hover:bg-gray-800 hover:text-white disabled:opacity-50 transition-colors"
+            aria-label="Refresh"
+            title="Refresh"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
         <p className="text-sm text-gray-400">
           {meeting.location} · {meeting.date}
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="flex flex-wrap items-center gap-2">
         {races.map((r) => (
           <Link
             key={r.id}
-            to={`/races/${r.id}`}
-            className="bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-lg p-4 transition-colors"
+            to={`/${sport}/races/${r.id}`}
+            title={r.distance ? `${r.distance}m` : undefined}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 transition-colors"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white">Race {r.race_number}</span>
-              <RaceBadge race={r} />
-            </div>
-            <p className="text-xs text-gray-400">{r.distance ? `${r.distance}m` : ''}</p>
+            <span className="text-sm font-medium text-white">R{r.race_number}</span>
+            <RaceBadge race={r} sport={sport} />
           </Link>
         ))}
         {races.length === 0 && <p className="text-sm text-gray-400">No races.</p>}
