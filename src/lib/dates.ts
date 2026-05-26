@@ -29,3 +29,11 @@ export function labelForDate(iso: string): 'Yesterday' | 'Today' | 'Tomorrow' | 
   if (iso === tomorrowIso()) return 'Tomorrow'
   return null
 }
+
+// Path segment for the meetings list of a given date, matching the routes in App.tsx.
+export function pathForDate(iso: string): string {
+  if (iso === todayIso()) return 'today'
+  if (iso === yesterdayIso()) return 'yesterday'
+  if (iso === tomorrowIso()) return 'tomorrow'
+  return `date/${iso}`
+}

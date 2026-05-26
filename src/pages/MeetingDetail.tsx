@@ -6,6 +6,7 @@ import type { Meeting, Race } from '../types'
 import RaceBadge from '../components/RaceBadge'
 import { Skeleton } from '../components/Skeleton'
 import { sportFromPath } from '../lib/sport'
+import { pathForDate } from '../lib/dates'
 
 export default function MeetingDetail() {
   const { meetingId, sport: sportParam } = useParams<{ meetingId: string; sport: string }>()
@@ -67,7 +68,7 @@ export default function MeetingDetail() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to={`/${sport}/today`} className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-2">
+        <Link to={`/${sport}/${pathForDate(meeting.date)}`} className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200 mb-2">
           <ArrowLeft className="w-4 h-4" /> All meetings
         </Link>
         <div className="flex items-center gap-3">
