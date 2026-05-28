@@ -33,7 +33,7 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
     style = 'bg-emerald-600/90 text-white'
   } else if (race.status === 'Abandoned') {
     label = 'ABND'
-    style = 'bg-amber-600/90 text-white'
+    style = 'bg-violet-600/90 text-white'
   } else if (race.status === 'Closed') {
     label = 'Closed'
     style = 'bg-gray-700 text-gray-300'
