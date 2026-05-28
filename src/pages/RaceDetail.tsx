@@ -253,6 +253,10 @@ export default function RaceDetail() {
                 ))}
               </div>
             </div>
+          ) : race.status === 'Abandoned' ? (
+            <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-600/90 text-white">
+              Abandoned
+            </span>
           ) : race.status === 'Closed' ? (
             <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-gray-700 text-gray-200">
               Closed

@@ -31,6 +31,9 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   if (resulted) {
     label = resulted
     style = 'bg-emerald-600/90 text-white'
+  } else if (race.status === 'Abandoned') {
+    label = 'ABND'
+    style = 'bg-amber-600/90 text-white'
   } else if (race.status === 'Closed') {
     label = 'Closed'
     style = 'bg-gray-700 text-gray-300'
@@ -51,7 +54,7 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   return (
     <Link
       to={`/${sport}/races/${race.id}`}
-      title={`Race ${race.race_number} · ${formatTime(race.start_time)}`}
+      title={`Race ${race.race_number} · ${formatTime(race.start_time)}${race.status === 'Abandoned' ? ' · Abandoned' : ''}`}
       className={`inline-flex items-center justify-center min-w-[2.5rem] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium transition-opacity hover:opacity-80 ${style} ${className}`}
     >
       {label}
