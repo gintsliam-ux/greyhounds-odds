@@ -84,7 +84,7 @@ export async function fetchNextToJumpForSport(sport: Sport, limit = 20): Promise
     .from(t.races)
     .select(`*, meeting:${t.meetings}(*)`)
     .gte('start_time', nowIso)
-    .neq('status', 'Resulted')
+    .not('status', 'in', '(Resulted,Closed,Abandoned)')
     .order('start_time', { ascending: true })
     .limit(limit)
   if (error) throw error
