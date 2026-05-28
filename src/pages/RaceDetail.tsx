@@ -241,18 +241,6 @@ export default function RaceDetail() {
               <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold">
                 Resulted
               </span>
-              {race.actual_start_time && (
-                <span
-                  className="text-[11px] text-gray-400 tabular-nums"
-                  title="Actual start time"
-                >
-                  {new Date(race.actual_start_time).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                  })}
-                </span>
-              )}
               <div className="flex items-center gap-1">
                 {resultBoxes.map((box, i) => (
                   <span
@@ -297,6 +285,15 @@ export default function RaceDetail() {
         <p className="text-sm text-gray-400 mt-1">
           {race.distance ? `${race.distance}m` : ''}
           {race.start_time && ` · ${new Date(race.start_time).toLocaleString()}`} · {race.status}
+          {race.actual_start_time && (
+            <span title="Actual start time">
+              {` · Off ${new Date(race.actual_start_time).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              })}`}
+            </span>
+          )}
         </p>
       </div>
 
