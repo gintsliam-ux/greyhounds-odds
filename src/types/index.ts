@@ -14,6 +14,7 @@ export interface Race {
   race_number: number
   status: string
   start_time: string
+  actual_start_time: string | null
   distance: number | null
   results: number[][] | null
   created_at: string
