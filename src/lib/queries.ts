@@ -125,13 +125,25 @@ export async function searchRunnersAllSports(query: string, limit = 30): Promise
   const q = query.trim()
   if (q.length < 2) return []
   const sports: Sport[] = ['thoroughbreds', 'harness', 'greyhounds']
-  const lists = await Promise.all(
+  const settled = await Promise.allSettled(
     sports.map((s) =>
-      searchRunners(s, q, limit)
-        .then((hits) => hits.map((h) => ({ ...h, sport: s })))
-        .catch(() => [] as RunnerSearchHitWithSport[])
+      searchRunners(s, q, limit).then((hits) => hits.map((h) => ({ ...h, sport: s })))
     )
   )
+  const lists: RunnerSearchHitWithSport[][] = []
+  const errors: unknown[] = []
+  settled.forEach((r, i) => {
+    if (r.status === 'fulfilled') lists.push(r.value)
+    else {
+      console.error(`searchRunners failed for ${sports[i]}:`, r.reason)
+      errors.push(r.reason)
+    }
+  })
+  // If every sport failed, surface the first error so the UI can show it
+  // instead of silently rendering "No runners match…".
+  if (lists.length === 0 && errors.length > 0) {
+    throw errors[0] instanceof Error ? errors[0] : new Error(String(errors[0]))
+  }
   const now = Date.now()
   return lists
     .flat()
