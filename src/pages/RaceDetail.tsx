@@ -7,7 +7,14 @@ import type { Race, Runner, Odds, OddsCheckpoint, Meeting } from '../types'
 import { CHECKPOINTS, runnerBarrier, runnerNumber, runnerPilot } from '../types'
 import { Skeleton } from '../components/Skeleton'
 import Countdown from '../components/Countdown'
+import BookLogo from '../components/BookLogo'
+import Sparkline from '../components/Sparkline'
 import { SPORT_TABLES, sportFromPath } from '../lib/sport'
+
+// Checkpoint names as they read in the fluc hover readout.
+const CHECKPOINT_LABELS = CHECKPOINTS.map((cp) =>
+  cp === 'open' ? 'Open' : cp === 'current' ? 'Now' : cp,
+)
 
 type Market = 'win' | 'place'
 
@@ -203,6 +210,11 @@ export default function RaceDetail() {
   // these can sit unresolved for days, so the clock just runs away.
   const interim = race.status === 'Interim'
 
+  // Same problem from the other side: no result and no closing status, well
+  // past the jump. The feed has stopped updating it, so don't pretend to count.
+  const stale =
+    !!race.start_time && (Date.now() - new Date(race.start_time).getTime()) / 60000 > 30
+
   return (
     <div className="space-y-4">
       <div>
@@ -275,6 +287,10 @@ export default function RaceDetail() {
           ) : race.status === 'Closed' ? (
             <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-gray-700 text-gray-200">
               Closed
+            </span>
+          ) : stale ? (
+            <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-gray-700 text-gray-300">
+              Awaiting result
             </span>
           ) : race.start_time ? (
             <Countdown startTime={race.start_time} className="text-base" />
@@ -390,6 +406,7 @@ export default function RaceDetail() {
                       {CHECKPOINTS.map((cp) => (
                         <th key={cp} className="text-right font-medium px-2 sm:px-3 py-2">{cp}</th>
                       ))}
+                      <th className="text-center font-medium px-2 py-2">Fluc</th>
                       <th className="text-right font-medium px-3 sm:px-4 py-2">Δ</th>
                     </tr>
                   </thead>
@@ -405,12 +422,24 @@ export default function RaceDetail() {
                       return (
                         <Fragment key={bk}>
                           <tr>
-                            <td className="px-3 sm:px-4 py-2 text-gray-300 sticky left-0 bg-gray-900 z-10">{bk}</td>
+                            <td className="px-3 sm:px-4 py-2 sticky left-0 bg-gray-900 z-10">
+                              <BookLogo book={bk} />
+                            </td>
                             {CHECKPOINTS.map((cp) => (
                               <td key={cp} className="px-2 sm:px-3 py-2 text-right font-mono tabular-nums text-gray-200">
                                 {fmt(getOdd(o, cp))}
                               </td>
                             ))}
+                            <td className="px-2 py-2">
+                              <div className="flex justify-center">
+                                <Sparkline
+                                  data={CHECKPOINTS.map((cp) => getOdd(o, cp))}
+                                  labels={CHECKPOINT_LABELS}
+                                  title={`${bk} · ${runner.name}`}
+                                  direction={d == null || Math.abs(d) < 0.05 ? null : d > 0 ? 'up' : 'down'}
+                                />
+                              </div>
+                            </td>
                             <td
                               className={`px-3 sm:px-4 py-2 text-right font-mono tabular-nums ${
                                 d == null ? 'text-gray-500' : d > 0 ? 'text-emerald-400' : d < 0 ? 'text-red-400' : 'text-gray-400'
@@ -430,6 +459,7 @@ export default function RaceDetail() {
                                   {cp === 'current' ? bf.toFixed(2) : ''}
                                 </td>
                               ))}
+                              <td className="px-2 py-2" />
                               <td className="px-3 sm:px-4 py-2" />
                             </tr>
                           )}
@@ -438,7 +468,7 @@ export default function RaceDetail() {
                     })}
                     {bookmakers.length === 0 && (
                       <tr>
-                        <td colSpan={CHECKPOINTS.length + 2} className="px-4 py-4 text-center text-gray-500">
+                        <td colSpan={CHECKPOINTS.length + 3} className="px-4 py-4 text-center text-gray-500">
                           No odds recorded.
                         </td>
                       </tr>

@@ -2,6 +2,10 @@ import { Link } from 'react-router-dom'
 import type { Race } from '../types'
 import type { Sport } from '../lib/sport'
 
+// Past this far beyond the jump with nothing to show, a race is stale rather
+// than late — around 1,200 sit in the data with no result and no closing status.
+const STALE_AFTER_MIN = 30
+
 function minsFromNow(iso: string): number {
   return Math.round((new Date(iso).getTime() - Date.now()) / 60000)
 }
@@ -27,6 +31,8 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
 
   let label: string
   let style: string
+  // Only the branch we actually take gets to annotate the tooltip.
+  let note = ''
 
   // Interim placings are provisional and the race has already run, so it takes
   // priority over the clock — a race can sit here for days. Show the placings
@@ -34,15 +40,23 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   if (race.status === 'Interim') {
     label = resulted ?? 'Interim'
     style = 'bg-amber-500/90 text-white'
+    note = ' · Interim'
   } else if (resulted) {
     label = resulted
     style = 'bg-emerald-600/90 text-white'
   } else if (race.status === 'Abandoned') {
     label = 'ABND'
     style = 'bg-violet-600/90 text-white'
+    note = ' · Abandoned'
   } else if (race.status === 'Closed') {
     label = 'Closed'
     style = 'bg-gray-700 text-gray-300'
+  } else if (mins < -STALE_AFTER_MIN) {
+    // The feed stopped updating this one — no result, no terminal status. A
+    // live counter here just runs away, so show when it was due off instead.
+    label = formatTime(race.start_time)
+    style = 'bg-gray-800 text-gray-500'
+    note = ' · No result'
   } else if (mins < 0) {
     label = `${mins}m`
     style = 'bg-red-600/90 text-white'
@@ -57,8 +71,6 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
     style = 'border border-gray-700 text-gray-400 bg-transparent'
   }
 
-  const note =
-    race.status === 'Abandoned' || race.status === 'Interim' ? ` · ${race.status}` : ''
 
   return (
     <Link

@@ -25,3 +25,9 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# One-off data-analysis scripts. Kept local: they hardcode the Supabase URL and
+# anon key, and this repo is public.
+backtest-*.mjs
+perrace.mjs
+validate.mjs
