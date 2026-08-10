@@ -28,7 +28,12 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   let label: string
   let style: string
 
-  if (resulted) {
+  // Interim placings are provisional and the race has already run, so it takes
+  // priority over both the result and the clock — a race can sit here for days.
+  if (race.status === 'Interim') {
+    label = 'Interim'
+    style = 'bg-amber-500/90 text-white'
+  } else if (resulted) {
     label = resulted
     style = 'bg-emerald-600/90 text-white'
   } else if (race.status === 'Abandoned') {
@@ -51,10 +56,13 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
     style = 'border border-gray-700 text-gray-400 bg-transparent'
   }
 
+  const note =
+    race.status === 'Abandoned' || race.status === 'Interim' ? ` · ${race.status}` : ''
+
   return (
     <Link
       to={`/${sport}/races/${race.id}`}
-      title={`Race ${race.race_number} · ${formatTime(race.start_time)}${race.status === 'Abandoned' ? ' · Abandoned' : ''}`}
+      title={`Race ${race.race_number} · ${formatTime(race.start_time)}${note}${resulted && race.status === 'Interim' ? ` · ${resulted}` : ''}`}
       className={`inline-flex items-center justify-center min-w-[2.5rem] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium transition-opacity hover:opacity-80 ${style} ${className}`}
     >
       {label}

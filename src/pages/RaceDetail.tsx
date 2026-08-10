@@ -199,6 +199,10 @@ export default function RaceDetail() {
     .map((pos) => (Array.isArray(pos) ? pos[0] : pos))
     .filter((box): box is number => box != null)
 
+  // Interim: the race has run but the placings aren't final. No countdown —
+  // these can sit unresolved for days, so the clock just runs away.
+  const interim = race.status === 'Interim'
+
   return (
     <div className="space-y-4">
       <div>
@@ -239,14 +243,20 @@ export default function RaceDetail() {
           )}
           {resultBoxes.length > 0 ? (
             <div className="inline-flex items-center gap-2">
-              <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold">
-                Resulted
+              <span
+                className={`text-[10px] uppercase tracking-wider font-semibold ${
+                  interim ? 'text-amber-400' : 'text-emerald-400'
+                }`}
+              >
+                {interim ? 'Interim' : 'Resulted'}
               </span>
               <div className="flex items-center gap-1">
                 {resultBoxes.map((box, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-600/90 text-white text-xs font-mono font-semibold"
+                    className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-white text-xs font-mono font-semibold ${
+                      interim ? 'bg-amber-500/90' : 'bg-emerald-600/90'
+                    }`}
                     title={`${i + 1}${['st', 'nd', 'rd', 'th'][i] || 'th'}`}
                   >
                     {box}
@@ -254,6 +264,10 @@ export default function RaceDetail() {
                 ))}
               </div>
             </div>
+          ) : interim ? (
+            <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-500/90 text-white">
+              Interim
+            </span>
           ) : race.status === 'Abandoned' ? (
             <span className="inline-flex items-center px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-violet-600/90 text-white">
               Abandoned
