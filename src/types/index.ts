@@ -10,6 +10,12 @@ export interface Meeting {
 export interface Race {
   id: string
   meeting_id: string
+  /**
+   * The date of the meeting row the feed filed this race under, kept even when
+   * the race is reunited onto the meeting that started the day before (see
+   * lib/sessions). Bet lookups key on the feed's dating, not ours.
+   */
+  feed_date?: string
   betwatch_race_id: string | null
   race_number: number
   status: string

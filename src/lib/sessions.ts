@@ -43,7 +43,10 @@ export function reuniteSessions(
       if (at - prev > SESSION_GAP_MS) homeId = r.meeting_id
       prev = at
       hosting.add(homeId)
-      regrouped.push(r.meeting_id === homeId ? r : { ...r, meeting_id: homeId })
+      // Carry the feed's own dating through. Bets are keyed on it, so moving a
+      // race to the day it belongs must not change where we look for them.
+      const feed_date = byId.get(r.meeting_id)?.date
+      regrouped.push(r.meeting_id === homeId ? { ...r, feed_date } : { ...r, meeting_id: homeId, feed_date })
     }
   }
 
