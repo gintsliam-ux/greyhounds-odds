@@ -29,9 +29,10 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   let style: string
 
   // Interim placings are provisional and the race has already run, so it takes
-  // priority over both the result and the clock — a race can sit here for days.
+  // priority over the clock — a race can sit here for days. Show the placings
+  // once we have them, in amber rather than the emerald of a final result.
   if (race.status === 'Interim') {
-    label = 'Interim'
+    label = resulted ?? 'Interim'
     style = 'bg-amber-500/90 text-white'
   } else if (resulted) {
     label = resulted
@@ -62,7 +63,7 @@ export default function RaceBadge({ race, sport, className = '' }: { race: Race;
   return (
     <Link
       to={`/${sport}/races/${race.id}`}
-      title={`Race ${race.race_number} · ${formatTime(race.start_time)}${note}${resulted && race.status === 'Interim' ? ` · ${resulted}` : ''}`}
+      title={`Race ${race.race_number} · ${formatTime(race.start_time)}${note}`}
       className={`inline-flex items-center justify-center min-w-[2.5rem] px-1.5 py-0.5 rounded text-[11px] font-mono font-medium transition-opacity hover:opacity-80 ${style} ${className}`}
     >
       {label}
