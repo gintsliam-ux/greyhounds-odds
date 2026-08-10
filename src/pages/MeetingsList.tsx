@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { fetchMeetings, fetchRacesForMeetings } from '../lib/queries'
+import { fetchDay } from '../lib/queries'
 import type { Meeting, Race } from '../types'
 import DateTabs from '../components/DateTabs'
 import RaceBadge from '../components/RaceBadge'
@@ -34,14 +34,10 @@ export default function MeetingsList({ date }: { date: string }) {
     setRaces([])
     ;(async () => {
       try {
-        const ms = await fetchMeetings(sport, effectiveDate)
+        const { meetings: ms, races: rs } = await fetchDay(sport, effectiveDate)
         if (cancelled) return
         setMeetings(ms)
-        if (ms.length) {
-          const rs = await fetchRacesForMeetings(sport, ms.map((m) => m.id))
-          if (cancelled) return
-          setRaces(rs)
-        }
+        setRaces(rs)
       } catch (e) {
         if (!cancelled) setError((e as Error).message)
       } finally {

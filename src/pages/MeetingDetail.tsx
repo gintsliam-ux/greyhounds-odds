@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, RefreshCw } from 'lucide-react'
-import { fetchMeeting, fetchRacesForMeeting } from '../lib/queries'
+import { fetchMeeting, fetchSessionRaces } from '../lib/queries'
 import type { Meeting, Race } from '../types'
 import RaceBadge from '../components/RaceBadge'
 import { Skeleton } from '../components/Skeleton'
@@ -23,12 +23,9 @@ export default function MeetingDetail() {
       if (silent) setRefreshing(true)
       else setLoading(true)
       try {
-        const [m, r] = await Promise.all([
-          fetchMeeting(sport, meetingId),
-          fetchRacesForMeeting(sport, meetingId),
-        ])
+        const m = await fetchMeeting(sport, meetingId)
         setMeeting(m)
-        setRaces(r)
+        setRaces(m ? await fetchSessionRaces(sport, m) : [])
         setError(null)
       } catch (e) {
         setError((e as Error).message)

@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, RefreshCw } from 'lucide-react'
-import { fetchRace, fetchRunnersForRace, fetchOddsForRunners, fetchMeeting, fetchRacesForMeeting, fetchMeetings } from '../lib/queries'
+import { fetchRace, fetchRunnersForRace, fetchOddsForRunners, fetchRaceContext, fetchSessionRaces, fetchMeetings } from '../lib/queries'
 import { supabase } from '../lib/supabase'
 import type { Race, Runner, Odds, OddsCheckpoint, Meeting } from '../types'
 import { CHECKPOINTS, runnerBarrier, runnerNumber, runnerPilot } from '../types'
@@ -41,15 +41,15 @@ export default function RaceDetail() {
           return
         }
         setRace(r)
-        const [m, rs, mr] = await Promise.all([
-          fetchMeeting(sport, r.meeting_id),
+        const [ctx, rs] = await Promise.all([
+          fetchRaceContext(sport, r),
           fetchRunnersForRace(sport, r.id),
-          fetchRacesForMeeting(sport, r.meeting_id),
         ])
         if (cancelledRef.current) return
+        const m = ctx.meeting
         setMeeting(m)
         setRunners(rs)
-        setMeetingRaces(mr)
+        setMeetingRaces(ctx.races)
         if (m) {
           fetchMeetings(sport, m.date)
             .then((ms) => {
@@ -112,7 +112,8 @@ export default function RaceDetail() {
     if (!newMeetingId || newMeetingId === meeting?.id) return
     setSwitchingVenue(true)
     try {
-      const rs = await fetchRacesForMeeting(sport, newMeetingId)
+      const target = sameDayMeetings.find((mm) => mm.id === newMeetingId)
+      const rs = target ? await fetchSessionRaces(sport, target) : []
       const first = rs[0]
       if (first) navigate(`/${sport}/races/${first.id}`)
       else navigate(`/${sport}/meetings/${newMeetingId}`)
