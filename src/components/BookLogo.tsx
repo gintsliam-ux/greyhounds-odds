@@ -1,11 +1,12 @@
 import { useState } from 'react'
 
 // Square app-icon marks, shared with the other brand surfaces in the workspace.
-// Tab has no asset, so it falls through to the wordmark below — which is what
-// its brand is anyway. Keyed lowercase: the odds feed's casing is not ours.
+// Keyed lowercase: the odds feed's casing is not ours. Anything without a mark
+// falls through to the wordmark below.
 const LOGOS: Record<string, string> = {
   sportsbet: '/logos/brands/sportsbet.png',
   ladbrokes: '/logos/brands/ladbrokes.png',
+  tab: '/logos/brands/tab.png',
   betfair: '/logos/brands/betfair.png',
 }
 
