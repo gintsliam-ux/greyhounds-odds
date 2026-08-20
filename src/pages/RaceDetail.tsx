@@ -4,12 +4,12 @@ import { ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, RefreshCw } from 'lu
 import { fetchRace, fetchRunnersForRace, fetchOddsForRunners, fetchRaceContext, fetchSessionRaces, fetchMeetings } from '../lib/queries'
 import { supabase } from '../lib/supabase'
 import type { Race, Runner, Odds, OddsCheckpoint, Meeting } from '../types'
-import { CHECKPOINTS, runnerBarrier, runnerNumber, runnerPilot } from '../types'
+import { CHECKPOINTS, runnerBarrier, runnerNumber } from '../types'
 import { Skeleton } from '../components/Skeleton'
 import Countdown from '../components/Countdown'
 import BookLogo from '../components/BookLogo'
 import Sparkline from '../components/Sparkline'
-import { SPORT_TABLES, sportFromPath } from '../lib/sport'
+import { SPORT_TABLES, runnerPeople, sportFromPath } from '../lib/sport'
 
 // Checkpoint names as they read in the fluc hover readout.
 const CHECKPOINT_LABELS = CHECKPOINTS.map((cp) =>
@@ -387,8 +387,8 @@ export default function RaceDetail() {
                       {runner.name}
                       {barrier != null && <span className={`ml-1.5 font-normal ${scratched ? 'text-gray-600' : 'text-gray-400'}`}>({barrier})</span>}
                     </span>
-                    {runnerPilot(runner) && (
-                      <span className="text-xs text-gray-500">{runnerPilot(runner)}</span>
+                    {runnerPeople(sport, runner).length > 0 && (
+                      <span className="text-xs text-gray-500">{runnerPeople(sport, runner).join(' · ')}</span>
                     )}
                   </div>
                 </div>

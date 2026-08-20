@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { searchRunnersAllSports, type RunnerSearchHitWithSport } from '../lib/queries'
 import SportIcon from '../components/SportIcon'
+import { runnerPeople } from '../lib/sport'
 
 export default function SearchRunners() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -43,7 +44,7 @@ export default function SearchRunners() {
     }
   }, [query, searchParams, setSearchParams])
 
-  const pilot = (r: RunnerSearchHitWithSport) => r.jockey ?? r.driver ?? null
+  const people = (r: RunnerSearchHitWithSport) => runnerPeople(r.sport, r)
   const number = (r: RunnerSearchHitWithSport) => r.runner_number ?? r.box_number ?? r.barrier_number ?? null
   const barrier = (r: RunnerSearchHitWithSport) => (r.sport === 'greyhounds' ? null : r.barrier_number ?? null)
   const formatTime = (iso: string | null | undefined) => {
@@ -92,7 +93,7 @@ export default function SearchRunners() {
           {results.map((r) => {
             const num = number(r)
             const b = barrier(r)
-            const p = pilot(r)
+            const ppl = people(r)
             return (
               <li key={`${r.sport}-${r.id}`}>
                 <Link
@@ -126,12 +127,12 @@ export default function SearchRunners() {
                           <span className="font-mono">{formatTime(r.race.start_time)}</span>
                         </>
                       )}
-                      {p && (
-                        <>
+                      {ppl.map((t) => (
+                        <span key={t}>
                           <span className="mx-1 text-gray-600">·</span>
-                          {p}
-                        </>
-                      )}
+                          {t}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </Link>

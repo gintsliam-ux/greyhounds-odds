@@ -35,6 +35,7 @@ export interface Runner {
   barrier_number: number | null
   jockey: string | null
   driver: string | null
+  trainer: string | null
   name: string
   scratched_at: string | null
   created_at: string

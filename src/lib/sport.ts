@@ -36,3 +36,24 @@ export function isSport(s: string | undefined | null): s is Sport {
 export function sportFromPath(s: string | undefined | null): Sport {
   return isSport(s) ? s : 'thoroughbreds'
 }
+
+/** Harness runners have a driver, thoroughbreds a jockey, greyhounds neither. */
+export function pilotPrefix(sport: Sport): 'J' | 'D' | null {
+  return sport === 'harness' ? 'D' : sport === 'greyhounds' ? null : 'J'
+}
+
+/**
+ * The people on a runner, prefixed for the code: "J: S Kok", "D: M Goetz",
+ * "T: L Thong". Greyhounds list only a trainer.
+ */
+export function runnerPeople(
+  sport: Sport,
+  r: { jockey?: string | null; driver?: string | null; trainer?: string | null },
+): string[] {
+  const out: string[] = []
+  const prefix = pilotPrefix(sport)
+  const pilot = r.jockey ?? r.driver ?? null
+  if (prefix && pilot) out.push(`${prefix}: ${pilot}`)
+  if (r.trainer) out.push(`T: ${r.trainer}`)
+  return out
+}

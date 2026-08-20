@@ -174,6 +174,7 @@ export interface RunnerSearchHit {
   name: string
   driver: string | null
   jockey: string | null
+  trainer: string | null
   runner_number: number | null
   barrier_number: number | null
   box_number: number | null
